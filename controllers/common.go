@@ -7,6 +7,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/sessions"
 	"github.com/rimxgo/helper/logs"
+	"github.com/rimxgo/models"
 	"github.com/rimxgo/models/vos"
 )
 
@@ -14,8 +15,9 @@ var logger = logs.Logger
 
 type baseController struct {
 	Ctx       iris.Context
-	Session   *sessions.Session
 	StartTime time.Time
+	Session   *sessions.Session
+	User      *models.User
 }
 
 type Result struct {

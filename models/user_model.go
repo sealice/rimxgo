@@ -1,6 +1,9 @@
 package models
 
 import (
+	"errors"
+	"strings"
+
 	"github.com/rimxgo/models/vos"
 )
 
@@ -36,4 +39,20 @@ func (m *User) GetOne() (bool, error) {
 
 func (m *User) Insert() (int64, error) {
 	return engine.AllCols().InsertOne(m)
+}
+
+func (m *User) IsExist() (bool, error) {
+	return engine.Exist(m)
+}
+
+func (m *User) Validate() error {
+	if m.Name = strings.TrimSpace(m.Name); m.Name == "" {
+		return errors.New("用户名不能为空")
+	}
+
+	if m.Password = strings.TrimSpace(m.Password); m.Password == "" {
+		return errors.New("密码不能为空")
+	}
+
+	return nil
 }
