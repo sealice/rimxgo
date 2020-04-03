@@ -43,7 +43,7 @@ func (c *UserController) GetGet() *Result {
 		return c.RetResult(2998, "用户不存在")
 	}
 
-	return c.RetResultData("", v)
+	return c.RetResultData(v)
 }
 
 // router post /add
@@ -59,5 +59,5 @@ func (c *UserController) PostAdd() *Result {
 		return c.RetResult(2998, "系统繁忙")
 	}
 
-	return c.RetResultData("ok")
+	return c.RetResultData(nil, "ok")
 }

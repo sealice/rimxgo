@@ -12,7 +12,7 @@ import (
 var engine *xorm.Engine
 
 func init() {
-	engine = initEngine("mysql", "MysqlDefault")
+	engine = initEngine("mysql", "mysqlDefault")
 }
 
 func initEngine(driverName, configKey string) *xorm.Engine {
@@ -40,17 +40,16 @@ func initEngine(driverName, configKey string) *xorm.Engine {
 		engine.SetMaxOpenConns(maxOpen)
 	}
 
-	if config.GetBool("Debug") {
-		engine.ShowSQL()
+	if config.GetBool("debug") {
+		engine.ShowSQL() // 调试模式打印SQL日志
 	}
 
 	return engine
 }
 
-func loadConfig(configKey string) (uri string, maxIdle, maxOpen int) {
-	v := config.Sub(configKey)
-	uri = v.GetString("Uri")
-	maxIdle = v.GetInt("MaxIdleConns")
-	maxOpen = v.GetInt("MaxOpenConns")
+func loadConfig(keyPrefix string) (uri string, maxIdle, maxOpen int) {
+	uri = config.GetString(keyPrefix + ".uri")
+	maxIdle = config.GetInt(keyPrefix + ".maxIdleConns")
+	maxOpen = config.GetInt(keyPrefix + ".maxOpenConns")
 	return
 }

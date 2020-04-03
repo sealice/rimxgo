@@ -9,17 +9,16 @@ import (
 var Client *redis.Client
 
 func init() {
-	Client = NewClient("Redis")
+	Client = NewClient("redis")
 }
 
-func NewClient(configKey string) *redis.Client {
-	v := config.Sub(configKey)
+func NewClient(keyPrefix string) *redis.Client {
 	client := redis.NewClient(&redis.Options{
-		Network:  v.GetString("Network"),
-		Addr:     v.GetString("Addr"),
-		Password: v.GetString("Password"),
-		DB:       v.GetInt("Database"),
-		PoolSize: v.GetInt("PoolSize"),
+		Network:  config.GetString(keyPrefix + ".network"),
+		Addr:     config.GetString(keyPrefix + ".addr"),
+		Password: config.GetString(keyPrefix + ".password"),
+		DB:       config.GetInt(keyPrefix + ".database"),
+		PoolSize: config.GetInt(keyPrefix + ".poolsize"),
 	})
 
 	iris.RegisterOnInterrupt(func() {

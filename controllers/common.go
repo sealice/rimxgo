@@ -25,6 +25,7 @@ type Result struct {
 	Msg  string      `json:"msg,omitempty"`
 	Data interface{} `json:"data,omitempty"`
 	List interface{} `json:"list,omitempty"`
+
 	*vos.Page
 }
 
@@ -35,8 +36,11 @@ func (c *baseController) RetResult(code int, msg string, data ...interface{}) *R
 	return &Result{Code: code, Msg: msg, Data: data[0]}
 }
 
-func (c *baseController) RetResultData(msg string, data ...interface{}) *Result {
-	return c.RetResult(0, msg, data...)
+func (c *baseController) RetResultData(data interface{}, msg ...string) *Result {
+	if len(msg) == 0 {
+		msg = append(msg, "")
+	}
+	return &Result{Code: 0, Msg: msg[0], Data: data}
 }
 
 func (c *baseController) RetResultList(list interface{}, page ...*vos.Page) *Result {
@@ -47,9 +51,19 @@ func (c *baseController) RetResultList(list interface{}, page ...*vos.Page) *Res
 }
 
 func (c *baseController) ReadPage() (*vos.Page, error) {
-	page := &vos.Page{PageNum: 1, PageSize: 10}
+	page := &vos.Page{}
 	err := c.Ctx.ReadForm(page)
+
+	if page.PageNum <= 0 {
+		page.PageNum = 1
+	}
+
+	if page.PageSize <= 0 {
+		page.PageSize = 20
+	}
+
 	page.Start = (page.PageNum - 1) * page.PageSize
+
 	return page, err
 }
 

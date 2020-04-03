@@ -1,8 +1,9 @@
 package controllers
 
-import "github.com/rimxgo/models"
-
-import "github.com/rimxgo/config"
+import (
+	"github.com/rimxgo/constant"
+	"github.com/rimxgo/models"
+)
 
 type MainController struct {
 	baseController
@@ -34,7 +35,7 @@ func (c *MainController) PostRegister() *Result {
 
 	v.Password = ""
 	logger.Infof("用户`%s`注册成功", v.Name)
-	return c.RetResultData("", v)
+	return c.RetResultData(v)
 }
 
 func (c *MainController) PostLogin() *Result {
@@ -61,14 +62,14 @@ func (c *MainController) PostLogin() *Result {
 
 	*v = *user
 	v.Password = ""
-	c.Session.Set(config.SESSION_KEY_USER, v)
+	c.Session.Set(constant.SESSION_KEY_USER, v)
 	logger.Infof("用户`%s`登录成功", v.Name)
-	return c.RetResultData("", v)
+	return c.RetResultData(v)
 }
 
 func (c *MainController) GetLogout() *Result {
 	if c.User != nil {
-		c.Session.Delete(config.SESSION_KEY_USER)
+		c.Session.Delete(constant.SESSION_KEY_USER)
 	}
-	return c.RetResultData("")
+	return c.RetResultData(nil)
 }

@@ -1,17 +1,17 @@
-Name: rimxgo
-Prot: :8080
-Debug: true # 开发调试模式
-LogLevel: info # debug|info|warn|error|fatal|disable
-Session:
-  Expires: 3600
+name: rimxgo
+prot: :8080
+debug: true # 开发调试模式
+logLevel: info # debug|info|warn|error|fatal|disable
+session:
+  expires: 3600
 
-Redis:
-  Addr: 127.0.0.1:6379
-  Password: ''
-  Database: 0
-  PoolSize: 10
+redis:
+  addr: 127.0.0.1:6379
+  password: ''
+  database: 0
+  poolsize: 10
 
-MysqlDefault:
-  Uri: root:root@tcp(127.0.0.1:3306)/golang?charset=utf8&loc=Local
-  MaxIdleConns: 3
-  MaxOpenConns: 5
+mysqlDefault:
+  uri: root:root@tcp(127.0.0.1:3306)/golang?charset=utf8&loc=Local
+  maxIdleConns: 3
+  maxOpenConns: 5

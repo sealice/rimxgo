@@ -117,42 +117,57 @@ func snakeToCamel(snake string, big bool) string {
 func whereCond(key []string, val interface{}) builder.Cond {
 	if len(key) > 1 {
 		switch key[1] {
+
 		case "eq", "":
 			return builder.Eq{key[0]: val}
+
 		case "neq":
 			return builder.Neq{key[0]: val}
+
 		case "gt":
 			return builder.Gt{key[0]: val}
+
 		case "gte":
 			return builder.Gte{key[0]: val}
+
 		case "lt":
 			return builder.Lt{key[0]: val}
+
 		case "lte":
 			return builder.Lte{key[0]: val}
+
 		case "like", "%like", "like%":
 			if v, ok := val.(string); ok {
 				return builder.Like{key[0], strings.ReplaceAll(key[1], "like", v)}
 			}
+
 			logs.Logger.Debugf("Parameter `%s` type error, expecting a string.", key[0])
 			return builder.NewCond()
+
 		case "in":
 			if v, ok := val.([]interface{}); ok {
 				return builder.In(key[0], v...)
 			}
+
 			logs.Logger.Debugf("Parameter `%s` type error, expecting an array.", key[0])
 			return builder.NewCond()
+
 		case "notin":
 			if v, ok := val.([]interface{}); ok {
 				return builder.NotIn(key[0], v...)
 			}
+
 			logs.Logger.Debugf("Parameter `%s` type error, expecting an array.", key[0])
 			return builder.NewCond()
+
 		case "range":
 			if v, ok := val.([]interface{}); ok {
 				return rangeCond(key[0], v)
 			}
+
 			logs.Logger.Debugf("Parameter `%s` type error, expecting an array.", key[0])
 			return builder.NewCond()
+
 		case "datetime":
 			if v, ok := val.(string); ok {
 				return builder.Eq{key[0]: v}
@@ -161,8 +176,10 @@ func whereCond(key []string, val interface{}) builder.Cond {
 			if v, ok := val.([]interface{}); ok {
 				return rangeCond(key[0], v)
 			}
+
 			logs.Logger.Debugf("Parameter `%s` type error, expecting a string or an array.", key[0])
 			return builder.NewCond()
+
 		case "date":
 			if v, ok := val.(string); ok {
 				vv := []interface{}{v, v + " 23:59:59"}
@@ -177,11 +194,14 @@ func whereCond(key []string, val interface{}) builder.Cond {
 				}
 				return rangeCond(key[0], v)
 			}
+
 			logs.Logger.Debugf("Parameter `%s` type error, expecting a string or an array.", key[0])
 			return builder.NewCond()
+
 		default:
 		}
 	}
+
 	return builder.Eq{key[0]: val}
 }
 

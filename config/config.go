@@ -17,8 +17,8 @@ func init() {
 		panic(err)
 	}
 
-	if v.GetBool("Debug") {
-		v.Set("LogLevel", "debug") // 调试模式始终打印Debug日志
+	if v.GetBool("debug") {
+		v.Set("logLevel", "debug") // 调试模式始终打印Debug日志
 	}
 }
 
@@ -42,10 +42,6 @@ func readFile(path string, level uint) error {
 //
 // Get returns an interface. For a specific value use one of the Get____ methods.
 func Get(key string) interface{} { return v.Get(key) }
-
-// Sub returns new Viper instance representing a sub tree of this instance.
-// Sub is case-insensitive for a key.
-func Sub(key string) *viper.Viper { return v.Sub(key) }
 
 // GetString returns the value associated with the key as a string.
 func GetString(key string) string { return v.GetString(key) }
@@ -115,58 +111,71 @@ func Unmarshal(rawVal interface{}, opts ...viper.DecoderConfigOption) error {
 func IsSet(key string) bool { return v.IsSet(key) }
 
 func GetStringDefault(key string, value string) string {
-	val := v.GetString(key)
-	if val != "" {
-		return val
+	if !v.IsSet(key) {
+		v.Set(key, value)
 	}
-	return value
+	return v.GetString(key)
 }
 
 func GetBoolDefault(key string, value bool) bool {
-	if v.IsSet(key) {
-		return v.GetBool(key)
+	if !v.IsSet(key) {
+		v.Set(key, value)
 	}
-	return value
+	return v.GetBool(key)
 }
 
 func GetIntDefault(key string, value int) int {
-	if v.IsSet(key) {
-		return v.GetInt(key)
+	if !v.IsSet(key) {
+		v.Set(key, value)
 	}
-	return value
+	return v.GetInt(key)
 }
 
 func GetInt32Default(key string, value int32) int32 {
-	if v.IsSet(key) {
-		return v.GetInt32(key)
+	if !v.IsSet(key) {
+		v.Set(key, value)
 	}
-	return value
+	return v.GetInt32(key)
 }
 
 func GetInt64Default(key string, value int64) int64 {
-	if v.IsSet(key) {
-		return v.GetInt64(key)
+	if !v.IsSet(key) {
+		v.Set(key, value)
 	}
-	return value
+	return v.GetInt64(key)
 }
 
 func GetUintDefault(key string, value uint) uint {
-	if v.IsSet(key) {
-		return v.GetUint(key)
+	if !v.IsSet(key) {
+		v.Set(key, value)
 	}
-	return value
+	return v.GetUint(key)
 }
 
 func GetUint32Default(key string, value uint32) uint32 {
-	if v.IsSet(key) {
-		return v.GetUint32(key)
+	if !v.IsSet(key) {
+		v.Set(key, value)
 	}
-	return value
+	return v.GetUint32(key)
 }
 
 func GetUint64Default(key string, value uint64) uint64 {
-	if v.IsSet(key) {
-		return v.GetUint64(key)
+	if !v.IsSet(key) {
+		v.Set(key, value)
 	}
-	return value
+	return v.GetUint64(key)
+}
+
+func GetFloat64Default(key string, value float64) float64 {
+	if !v.IsSet(key) {
+		v.Set(key, value)
+	}
+	return v.GetFloat64(key)
+}
+
+func GetDurationDefault(key string, value time.Duration) time.Duration {
+	if !v.IsSet(key) {
+		v.Set(key, value)
+	}
+	return v.GetDuration(key)
 }

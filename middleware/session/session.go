@@ -16,14 +16,14 @@ var (
 )
 
 func init() {
-	v := config.Sub("Session")
-	conf = (sessions.Config{
-		Cookie:                      v.GetString("Cookie"),
-		Expires:                     v.GetDuration("Expires") * time.Second,
-		CookieSecureTLS:             v.GetBool("CookieSecureTLS"),
-		DisableSubdomainPersistence: v.GetBool("DisableSubdomainPersistence"),
-		AllowReclaim:                true,
-	}).Validate()
+	keyPrefix := "session"
+	conf = sessions.Config{
+		Cookie:                      config.GetStringDefault(keyPrefix+".cookie", sessions.DefaultCookieName),
+		Expires:                     config.GetDuration(keyPrefix+".expires") * time.Second,
+		CookieSecureTLS:             config.GetBool(keyPrefix + ".cookieSecureTLS"),
+		DisableSubdomainPersistence: config.GetBool(keyPrefix + ".disableSubdomainPersistence"),
+		AllowReclaim:                config.GetBoolDefault(keyPrefix+".allowReclaim", true),
+	}
 	sess = sessions.New(conf)
 }
 

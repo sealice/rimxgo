@@ -10,15 +10,15 @@ import (
 )
 
 func Use(sess *sessions.Sessions) {
-	v := config.Sub("Redis")
+	keyPrefix := "redis"
 	driver := redis.Redigo()
 	db := redis.New(redis.Config{
-		Network:   v.GetString("Network"),
-		Addr:      v.GetString("Addr"),
-		Password:  v.GetString("Password"),
-		Database:  v.GetString("Database"),
-		MaxActive: v.GetInt("PoolSize"),
-		Prefix:    strings.ToUpper(config.GetStringDefault("Name", "iris") + ":SESSION:"),
+		Network:   config.GetString(keyPrefix + ".network"),
+		Addr:      config.GetString(keyPrefix + ".addr"),
+		Password:  config.GetString(keyPrefix + ".password"),
+		Database:  config.GetString(keyPrefix + ".database"),
+		MaxActive: config.GetInt(keyPrefix + ".poolsize"),
+		Prefix:    strings.ToUpper(config.GetStringDefault("name", "iris") + ":SESSION:"),
 		Driver:    driver,
 	})
 

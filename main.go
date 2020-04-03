@@ -11,7 +11,7 @@ import (
 func main() {
 	app := iris.New()
 
-	app.Logger().SetLevel(config.GetString("LogLevel"))
+	app.Logger().SetLevel(config.GetString("logLevel"))
 
 	app.Use(recover.New())
 	app.Use(logger.New(logger.Config{
@@ -27,7 +27,7 @@ func main() {
 	router.Register(app)
 
 	app.Run(
-		iris.Addr(config.GetString("Prot")),
+		iris.Addr(config.GetString("prot")),
 		iris.WithoutServerError(iris.ErrServerClosed),
 		iris.WithOptimizations,
 	)

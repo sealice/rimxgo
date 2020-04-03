@@ -16,7 +16,7 @@ var Logger *golog.Logger
 
 func init() {
 	Logger = golog.New()
-	Logger.SetLevel(config.GetString("LogLevel"))
+	Logger.SetLevel(config.GetString("logLevel"))
 	Logger.Handle(simpleOutput)
 	// Logger.Handle(jsonOutput)
 }
