@@ -26,12 +26,17 @@ func Register(app *iris.Application) {
 func configure(m *mvc.Application) {
 	// session.Register(m, redisdb.Use)
 	session.Register(m)
+
 	m.Register(
 		time.Now(),
 		func(ctx iris.Context) *models.User {
-			s := session.Instance().Start(ctx)
-			user, _ := s.Get(constant.SESSION_KEY_USER).(*models.User)
-			return user
+			if ctx.GetCookie(session.Conf.Cookie) != "" {
+				s := session.Instance().Start(ctx)
+				user, _ := s.Get(constant.SESSION_KEY_USER).(*models.User)
+				return user
+			}
+
+			return nil
 		},
 	)
 }

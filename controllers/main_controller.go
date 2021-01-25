@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/rimxgo/constant"
+	"github.com/rimxgo/middleware/session"
 	"github.com/rimxgo/models"
 )
 
@@ -62,8 +63,11 @@ func (c *MainController) PostLogin() *Result {
 
 	*v = *user
 	v.Password = ""
-	c.Session.Set(constant.SESSION_KEY_USER, v)
+
+	sess := session.Instance().Start(c.Ctx)
+	sess.Set(constant.SESSION_KEY_USER, user)
 	logger.Infof("用户`%s`登录成功", v.Name)
+
 	return c.RetResultData(v)
 }
 

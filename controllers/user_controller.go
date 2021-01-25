@@ -8,6 +8,13 @@ type UserController struct {
 	baseController
 }
 
+// router get /
+func (c *UserController) Get() *Result {
+	v := *c.User
+	v.Password = ""
+	return c.RetResultData(v)
+}
+
 // router get /list
 func (c *UserController) GetList() *Result {
 	v := &models.User{}
