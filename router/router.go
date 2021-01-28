@@ -9,6 +9,7 @@ import (
 	"github.com/rimxgo/controllers"
 	"github.com/rimxgo/middleware/session"
 	"github.com/rimxgo/models"
+	"github.com/rimxgo/router/filter"
 )
 
 func Register(app *iris.Application) {
@@ -19,7 +20,7 @@ func Register(app *iris.Application) {
 	api := m.Party("/v1")
 	{
 		api.Handle(&controllers.MainController{})
-		api.Party("/user", auth).Handle(&controllers.UserController{})
+		api.Party("/user", filter.Authentication).Handle(&controllers.UserController{})
 	}
 }
 
