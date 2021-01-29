@@ -2,6 +2,7 @@ name: rimxgo
 prot: :8080
 debug: true # 开发调试模式
 logLevel: info # debug|info|warn|error|fatal|disable
+syncDatabase: false # 服务启动时同步数据库结构
 session:
   expires: 3600
 

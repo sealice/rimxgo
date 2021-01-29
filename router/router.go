@@ -21,6 +21,10 @@ func Register(app *iris.Application) {
 	{
 		api.Handle(&controllers.MainController{})
 		api.Party("/user", filter.Authentication).Handle(&controllers.UserController{})
+		api.Party("/router").Handle(&controllers.PerRouterController{})
+		api.Party("/element").Handle(&controllers.PerElementController{})
+		api.Party("/authority", filter.Authentication, filter.Permission).Handle(&controllers.PerAuthorityController{})
+		api.Party("/role", filter.Authentication, filter.Permission).Handle(&controllers.PerRoleController{})
 	}
 }
 

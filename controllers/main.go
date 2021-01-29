@@ -61,6 +61,11 @@ func (c *MainController) PostLogin() *Result {
 		return RetResult(constant.CodeBusinessError, "用户不存在或密码错误")
 	}
 
+	if err := user.GetPermission(); err != nil {
+		logger.Error("获取用户权限错误，", err)
+		return RetResult(constant.CodeBusinessError, "系统繁忙")
+	}
+
 	*v = *user
 	v.Password = ""
 

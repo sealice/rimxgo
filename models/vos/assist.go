@@ -9,6 +9,8 @@ import (
 	"xorm.io/builder"
 )
 
+var DeepKey = "deep" // 列表深度查询Key
+
 type Page struct {
 	PageNum  int   `json:"pageNum" form:"pageNum"`
 	PageSize int   `json:"pageSize" form:"pageSize"`
@@ -17,6 +19,7 @@ type Page struct {
 }
 
 type JsonTime time.Time
+type Query map[string]interface{}
 
 func (j JsonTime) MarshalJSON() ([]byte, error) {
 	t := time.Time(j)
@@ -49,7 +52,7 @@ func (j *JsonTime) UnmarshalJSON(data []byte) error {
 // keys规则："[表别名.]{表字段}[:条件类型][:条件方式]".
 // 条件类型：|eq|neq|gt|gte|lt|lte|like|%like|like%|in|notin|range|date|datetime|
 // 条件方式：|and|or|
-func SetQueryByKeys(query map[string]interface{}, keys ...string) builder.Cond {
+func SetQueryByKeys(query Query, keys ...string) builder.Cond {
 	cond := builder.NewCond()
 
 	for _, key := range keys {
@@ -141,7 +144,11 @@ func whereCond(key []string, val interface{}) builder.Cond {
 				return builder.Like{key[0], strings.ReplaceAll(key[1], "like", v)}
 			}
 
-			logs.Logger.Debugf("Parameter `%s` type error, expecting a string.", key[0])
+			logs.Logger.Debugf(
+				"Parameter `%s` type error, expecting a string. Unexpected value %+v",
+				key[0],
+				val,
+			)
 			return builder.NewCond()
 
 		case "in":
@@ -149,23 +156,35 @@ func whereCond(key []string, val interface{}) builder.Cond {
 				return builder.In(key[0], v...)
 			}
 
-			logs.Logger.Debugf("Parameter `%s` type error, expecting an array.", key[0])
-			return builder.NewCond()
+			logs.Logger.Debugf(
+				"Parameter `%s` type error, expecting an array. Unexpected value %+v",
+				key[0],
+				val,
+			)
+			return builder.Eq{key[0]: val}
 
 		case "notin":
 			if v, ok := val.([]interface{}); ok {
 				return builder.NotIn(key[0], v...)
 			}
 
-			logs.Logger.Debugf("Parameter `%s` type error, expecting an array.", key[0])
-			return builder.NewCond()
+			logs.Logger.Debugf(
+				"Parameter `%s` type error, expecting an array. Unexpected value %+v",
+				key[0],
+				val,
+			)
+			return builder.Neq{key[0]: val}
 
 		case "range":
 			if v, ok := val.([]interface{}); ok {
 				return rangeCond(key[0], v)
 			}
 
-			logs.Logger.Debugf("Parameter `%s` type error, expecting an array.", key[0])
+			logs.Logger.Debugf(
+				"Parameter `%s` type error, expecting an array. Unexpected value %+v",
+				key[0],
+				val,
+			)
 			return builder.NewCond()
 
 		case "datetime":
@@ -177,7 +196,11 @@ func whereCond(key []string, val interface{}) builder.Cond {
 				return rangeCond(key[0], v)
 			}
 
-			logs.Logger.Debugf("Parameter `%s` type error, expecting a string or an array.", key[0])
+			logs.Logger.Debugf(
+				"Parameter `%s` type error, expecting a string or an array. Unexpected value %+v",
+				key[0],
+				val,
+			)
 			return builder.NewCond()
 
 		case "date":
@@ -195,7 +218,11 @@ func whereCond(key []string, val interface{}) builder.Cond {
 				return rangeCond(key[0], v)
 			}
 
-			logs.Logger.Debugf("Parameter `%s` type error, expecting a string or an array.", key[0])
+			logs.Logger.Debugf(
+				"Parameter `%s` type error, expecting a string or an array. Unexpected value %+v",
+				key[0],
+				val,
+			)
 			return builder.NewCond()
 
 		default:
@@ -226,4 +253,21 @@ func rangeCond(col string, val []interface{}) builder.Cond {
 	}
 
 	return cond
+}
+
+// 形如 "1,2,3" 的字符串转为数组 ["1","2","3"]（结果已去重）
+func SplitIds(ids string) []string {
+	list := strings.Split(ids, ",")
+	set := make(map[string]bool)
+	result := make([]string, 0)
+
+	for _, v := range list {
+		v = strings.TrimSpace(v)
+		if v != "" && !set[v] {
+			set[v] = true
+			result = append(result, v)
+		}
+	}
+
+	return result
 }

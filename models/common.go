@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
@@ -13,6 +14,16 @@ var engine *xorm.Engine
 
 func init() {
 	engine = initEngine("mysql", "mysqlDefault")
+	location, _ := time.LoadLocation("Asia/Shanghai")
+	engine.TZLocation = location
+
+	// 同步数据库结构
+	if config.GetBoolDefault("syncDBStruct", true) {
+		engine.Sync2(
+			new(User),
+			new(PerRouter), new(PerElement), new(PerAuthority), new(PerRole),
+		)
+	}
 }
 
 func initEngine(driverName, configKey string) *xorm.Engine {
@@ -40,7 +51,7 @@ func initEngine(driverName, configKey string) *xorm.Engine {
 		engine.SetMaxOpenConns(maxOpen)
 	}
 
-	if config.GetBool("debug") {
+	if config.GetBool("debug") || config.GetBool(configKey+".showSQL") {
 		engine.ShowSQL() // 调试模式打印SQL日志
 	}
 

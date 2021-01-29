@@ -62,6 +62,11 @@ func (c *UserController) PostAdd() *Result {
 		return RetResult(constant.CodeBusinessError, "解析参数错误")
 	}
 
+	if err := v.Validate(); err != nil {
+		logger.Debug("校验参数错误，", err)
+		return RetResult(constant.CodeBusinessError, err.Error())
+	}
+
 	if _, err := v.Insert(); err != nil {
 		logger.Error(err)
 		return RetResult(constant.CodeBusinessError, "系统繁忙")
