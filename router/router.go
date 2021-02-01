@@ -29,7 +29,6 @@ func Register(app *iris.Application) {
 }
 
 func configure(m *mvc.Application) {
-	// session.Register(m, redisdb.Use)
 	session.Register(m)
 
 	m.Register(

@@ -1,4 +1,4 @@
-package redisdb
+package session
 
 import (
 	"strings"
@@ -9,7 +9,7 @@ import (
 	"github.com/rimxgo/config"
 )
 
-func Use(sess *sessions.Sessions) {
+func useRedisdb(sess *sessions.Sessions) {
 	keyPrefix := "redis"
 	driver := redis.Redigo()
 	db := redis.New(redis.Config{

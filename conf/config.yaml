@@ -4,6 +4,7 @@ debug: true # 开发调试模式
 logLevel: info # debug|info|warn|error|fatal|disable
 syncDatabase: false # 服务启动时同步数据库结构
 session:
+  storage: memory # memory|redis|file
   expires: 3600
 
 redis:

@@ -17,9 +17,11 @@ const SKV = "1"
 
 var Conf sessions.Config
 var sess *sessions.Sessions
+var storageType string
 
 func init() {
 	keyPrefix := "session"
+	storageType = config.GetString(keyPrefix + ".storage")
 	Conf = sessions.Config{
 		Cookie:                      config.GetStringDefault(keyPrefix+".cookie", sessions.DefaultCookieName),
 		Expires:                     config.GetDuration(keyPrefix+".expires") * time.Second,
@@ -27,12 +29,15 @@ func init() {
 		DisableSubdomainPersistence: config.GetBool(keyPrefix + ".disableSubdomainPersistence"),
 		AllowReclaim:                config.GetBoolDefault(keyPrefix+".allowReclaim", true),
 	}
+
 	sess = sessions.New(Conf)
 }
 
-func Register(m *mvc.Application, db ...func(sess *sessions.Sessions)) {
-	if len(db) > 0 {
-		db[0](sess)
+func Register(m *mvc.Application) {
+	if storageType == "redis" {
+		useRedisdb(sess)
+	} else if storageType == "file" {
+		useBoltdb(sess)
 	}
 
 	m.Register(func(ctx iris.Context) *sessions.Session {
