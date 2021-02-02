@@ -7,7 +7,7 @@ import (
 
 type PerRole struct {
 	Id           int          `json:"id" xorm:"not null pk autoincr INT(11)"`
-	AuthorityIds string       `json:"authorityIds" xorm:"VARCHAR(255)"`
+	AuthorityIds string       `json:"authorityIds" xorm:"VARCHAR(1000)"`
 	Name         string       `json:"name" xorm:"VARCHAR(255)"`
 	Remark       string       `json:"remark" xorm:"VARCHAR(255)"`
 	CreateTime   vos.JsonTime `json:"createTime" xorm:"DATETIME created"`

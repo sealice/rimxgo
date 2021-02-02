@@ -68,19 +68,20 @@ func (m *User) getPermission(st interface{}, ids string) error {
 	var ls interface{}
 	var err error
 
+	oCols := []string{`name`, `remark`, `create_time`, `update_time`}
 	switch per := st.(type) {
 	case *PerRole:
 		per.Query = vos.Query{"id": vos.SplitIds(ids)}
-		ls, err = per.GetList()
+		ls, err = per.GetList(oCols...)
 	case *PerAuthority:
 		per.Query = vos.Query{"id": vos.SplitIds(ids)}
-		ls, err = per.GetList()
+		ls, err = per.GetList(oCols...)
 	case *PerElement:
 		per.Query = vos.Query{"id": vos.SplitIds(ids)}
-		ls, err = per.GetList()
+		ls, err = per.GetList(oCols...)
 	case *PerRouter:
 		per.Query = vos.Query{"id": vos.SplitIds(ids)}
-		ls, err = per.GetList()
+		ls, err = per.GetList(oCols...)
 	}
 
 	if err != nil || ls == nil {
@@ -88,28 +89,28 @@ func (m *User) getPermission(st interface{}, ids string) error {
 	}
 
 	ids = ""
-	switch lss := ls.(type) {
+	switch lst := ls.(type) {
 	case []*PerRole:
-		for _, s := range lss {
+		for _, s := range lst {
 			ids += s.AuthorityIds + ","
 		}
 		return m.getPermission(&PerAuthority{}, ids)
 
 	case []*PerAuthority:
-		for _, s := range lss {
+		for _, s := range lst {
 			ids += s.ElementIds + ","
 		}
 		return m.getPermission(&PerElement{}, ids)
 
 	case []*PerElement:
-		for _, s := range lss {
+		for _, s := range lst {
 			ids += s.RouterIds + ","
 			m.Elements = append(m.Elements, s.Code)
 		}
 		return m.getPermission(&PerRouter{}, ids)
 
 	case []*PerRouter:
-		for _, s := range lss {
+		for _, s := range lst {
 			m.Routers = append(m.Routers, s.Path)
 		}
 	}

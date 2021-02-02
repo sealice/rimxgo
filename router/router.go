@@ -16,10 +16,9 @@ func Register(app *iris.Application) {
 	m := mvc.Configure(app.Party("/"), configure)
 
 	// router
-	m.Handle(&controllers.DefaultController{})
 	api := m.Party("/v1")
 	{
-		api.Handle(&controllers.MainController{})
+		api.Handle(&controllers.DefaultController{})
 		api.Party("/user", filter.Authentication).Handle(&controllers.UserController{})
 		api.Party("/router").Handle(&controllers.PerRouterController{})
 		api.Party("/element").Handle(&controllers.PerElementController{})

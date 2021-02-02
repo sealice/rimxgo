@@ -43,41 +43,38 @@ func Register(m *mvc.Application) {
 	m.Register(func(ctx iris.Context) *sessions.Session {
 		if ctx.GetCookie(Conf.Cookie) != "" {
 			s := sess.Start(ctx)
-			if s.Get(constant.SESSION_KEY_USER) != nil && ctx.GetCookie(SK) != SKV {
-				cookie := &http.Cookie{
-					Name:     SK,
-					Value:    SKV,
-					Path:     "/",
-					HttpOnly: true,
-					SameSite: http.SameSiteLaxMode,
+			if s.Get(constant.SESSION_KEY_USER) != nil {
+				shiftExpiration(s, ctx)
+				if ctx.GetCookie(SK) != SKV {
+					cookie := &http.Cookie{
+						Name:     SK,
+						Value:    SKV,
+						Path:     "/",
+						HttpOnly: true,
+						SameSite: http.SameSiteLaxMode,
+					}
+					ctx.SetCookie(cookie)
 				}
-
-				ctx.SetCookie(cookie)
 			}
-
 			return s
 		}
 
 		return nil
 	})
-
-	m.Router.Use(func(ctx iris.Context) {
-		if ctx.GetCookie(Conf.Cookie) != "" && Conf.Expires > 0 {
-			s := sess.Start(ctx)
-			if s.Get(constant.SESSION_KEY_USER) != nil &&
-				!s.Lifetime.HasExpired() &&
-				s.Lifetime.DurationUntilExpiration() < Conf.Expires/5 {
-				// 快过期前更新Session
-				if err := sess.ShiftExpiration(ctx); err != nil {
-					logs.Logger.Warn("Update Session: ", err)
-				}
-			}
-		}
-
-		ctx.Next()
-	})
 }
 
 func Instance() *sessions.Sessions {
 	return sess
+}
+
+// Session续期
+func shiftExpiration(s *sessions.Session, ctx iris.Context) {
+	if Conf.Expires > 0 &&
+		!s.Lifetime.HasExpired() &&
+		s.Lifetime.DurationUntilExpiration() < Conf.Expires/5 {
+		// 快过期前更新Session
+		if err := sess.ShiftExpiration(ctx); err != nil {
+			logs.Logger.Warn("Update Session: ", err)
+		}
+	}
 }
