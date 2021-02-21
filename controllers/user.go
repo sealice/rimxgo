@@ -16,8 +16,26 @@ func (c *UserController) Get() *Result {
 	return RetResultData(v)
 }
 
-// router get /list
+// router get /list?query={}
 func (c *UserController) GetList() *Result {
+	v := &models.User{}
+
+	if err := c.ReadQueryJSON(&v.Query); err != nil {
+		logger.Debug("解析参数错误，", err)
+		return RetResult(constant.CodeBusinessError, "解析参数错误")
+	}
+
+	ls, err := v.GetList()
+	if err != nil {
+		logger.Error(err)
+		return RetResult(constant.CodeBusinessError, "系统繁忙")
+	}
+
+	return RetResultList(ls)
+}
+
+// router get /page
+func (c *UserController) GetPage() *Result {
 	v := &models.User{}
 	p, _ := c.ReadPage()
 
@@ -26,7 +44,7 @@ func (c *UserController) GetList() *Result {
 		return RetResult(constant.CodeBusinessError, "解析参数错误")
 	}
 
-	ls, err := v.GetList(p)
+	ls, err := v.GetPage(p)
 	if err != nil {
 		logger.Error(err)
 		return RetResult(constant.CodeBusinessError, "系统繁忙")

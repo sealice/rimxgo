@@ -104,6 +104,7 @@ func (m *PerAuthority) listSess(oCols ...string) *xorm.Session {
 
 func (m *PerAuthority) inElements() error {
 	var err error
+	m.Elements = make([]*PerElement, 0)
 	if strings.TrimSpace(m.ElementIds) != "" && m.Query[vos.DeepKey] == true {
 		item := &PerElement{
 			Query: vos.Query{

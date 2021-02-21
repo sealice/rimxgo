@@ -82,6 +82,7 @@ func (m *PerElement) listSess(oCols ...string) *xorm.Session {
 
 func (m *PerElement) inRouters() error {
 	var err error
+	m.Routers = make([]*PerRouter, 0)
 	if strings.TrimSpace(m.RouterIds) != "" && m.Query[vos.DeepKey] == true {
 		item := &PerRouter{
 			Query: vos.Query{
