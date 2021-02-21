@@ -70,28 +70,31 @@ func (c *DefaultController) PostLogin() *Result {
 		return RetResult(constant.CodeBusinessError, err.Error())
 	}
 
-	user := &models.User{Name: v.Name, Password: v.Password}
-	if has, err := user.GetOne(); err != nil {
+	if has, err := v.GetOne(); err != nil {
 		logger.Error(err)
 		return RetResult(constant.CodeBusinessError, "系统繁忙")
 	} else if !has {
-		logger.Debugf("用户`%s`不存在或密码错误", user.Name)
-		return RetResult(constant.CodeBusinessError, "用户不存在或密码错误")
+		if has, _ = (&models.User{Name: v.Name}).IsExist(); !has {
+			logger.Debugf("用户`%s`不存在", v.Name)
+			return RetResult(constant.CodeBusinessError, "用户不存在")
+		}
+
+		logger.Debugf("用户`%s`密码输入错误", v.Name)
+		return RetResult(constant.CodeBusinessError, "密码错误")
 	}
 
-	if err := user.GetPermission(); err != nil {
+	if err := v.GetPermission(); err != nil {
 		logger.Error("获取用户权限错误，", err)
 		return RetResult(constant.CodeBusinessError, "系统繁忙")
 	}
 
-	*v = *user
-	v.Password = ""
-
+	user := *v
 	sess := session.Instance().Start(c.Ctx)
-	sess.Set(constant.SESSION_KEY_USER, user)
+	sess.Set(constant.SESSION_KEY_USER, &user)
 	logger.Infof("用户`%s`登录成功", v.Name)
 	logger.Debugf("用户`%s`访问权限，%v", v.Name, v.Routers)
 
+	v.Password = ""
 	return RetResultData(v)
 }
 

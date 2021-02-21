@@ -17,6 +17,7 @@ type User struct {
 	CreateTime vos.JsonTime           `json:"createTime" xorm:"created DATETIME"`
 	UpdateTime vos.JsonTime           `json:"updateTime" xorm:"updated DATETIME"`
 	Query      map[string]interface{} `json:"-" xorm:"-"` // 查询条件
+	Roles      []*PerRole             `json:"roles" xorm:"-"`
 	Elements   []string               `json:"elements,omitempty" xorm:"-"`
 	Routers    []string               `json:"-" xorm:"-"`
 }
@@ -33,7 +34,13 @@ func (m *User) GetList(p *vos.Page) ([]*User, error) {
 }
 
 func (m *User) GetOne() (bool, error) {
-	return engine.Get(m)
+	has, err := engine.Get(m)
+	if err != nil || !has {
+		return has, err
+	}
+
+	m.Roles, err = (&PerRole{}).GetList()
+	return has, err
 }
 
 func (m *User) Insert() (int64, error) {
@@ -57,18 +64,22 @@ func (m *User) Validate() error {
 }
 
 func (m *User) GetPermission() error {
-	if m.RoleIds != "" {
-		return m.getPermission(&PerRole{}, m.RoleIds)
+	if len(m.Roles) > 0 {
+		return m.permissionResolve(m.Roles)
 	}
 
-	return nil
+	return m.getPermission(&PerRole{}, m.RoleIds)
 }
 
 func (m *User) getPermission(st interface{}, ids string) error {
-	var ls interface{}
-	var err error
+	if strings.TrimSpace(ids) == "" {
+		return nil
+	}
 
-	oCols := []string{`name`, `remark`, `create_time`, `update_time`}
+	var err error
+	var ls interface{}
+	var oCols = []string{`name`, `remark`, `create_time`, `update_time`}
+
 	switch per := st.(type) {
 	case *PerRole:
 		per.Query = vos.Query{"id": vos.SplitIds(ids)}
@@ -88,7 +99,12 @@ func (m *User) getPermission(st interface{}, ids string) error {
 		return err
 	}
 
-	ids = ""
+	return m.permissionResolve(ls)
+}
+
+func (m *User) permissionResolve(ls interface{}) error {
+	ids := ""
+
 	switch lst := ls.(type) {
 	case []*PerRole:
 		for _, s := range lst {
